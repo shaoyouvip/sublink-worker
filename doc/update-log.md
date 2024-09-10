@@ -1,8 +1,17 @@
 # 更新日志
 
+## 2024-09-10
+
+- ([#25](https://github.com/7Sageer/sublink-worker/issues/25)) 修复了Base64无法转换多个HTTP的问题
+- 现在为生成的链接提供二维码
+
+## 2024-09-09
+
+- ([#23](https://github.com/7Sageer/sublink-worker/issues/23)) 修复了Github规则无效的问题
+
 ## 2024-09-07
 
-- (#16)修复了导入base64订阅时出现乱码的问题
+- ([#16](https://github.com/7Sageer/sublink-worker/issues/16)) 修复了导入base64订阅时出现乱码的问题
 
 ## 2024-09-03
 
