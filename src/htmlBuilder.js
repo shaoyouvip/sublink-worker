@@ -1,11 +1,11 @@
 import { UNIFIED_RULES, PREDEFINED_RULE_SETS } from './config.js';
 
-export function generateHtml(xrayUrl, singboxUrl, clashUrl) {
+export function generateHtml(xrayUrl, singboxUrl, clashUrl, baseUrl) {
   return `
     <!DOCTYPE html>
     <html lang="en">
       ${generateHead()}
-      ${generateBody(xrayUrl, singboxUrl, clashUrl)}
+      ${generateBody(xrayUrl, singboxUrl, clashUrl, baseUrl)}
     </html>
   `;
 }
@@ -14,7 +14,9 @@ const generateHead = () => `
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sublink Worker</title>
+    <meta name="description" content="Sublink Worker - 一个强大的订阅链接转换工具,支持多种代理协议和自定义规则">
+    <meta name="keywords" content="Sublink, Worker, 订阅链接, 代理, Xray, SingBox, Clash, V2Ray, 自定义规则, 在线转换, 机场, 节点">
+    <title>Sublink Worker - 轻量高效的订阅链接转换工具</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -321,7 +323,7 @@ const generateStyles = () => `
       margin-right: 10px;
   }
 
-    .qr-modal {
+  .qr-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -367,9 +369,36 @@ const generateStyles = () => `
     font-size: 16px;
   }
 
+  .base-url-label {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border: 1px solid var(--input-border);
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  #subscribeLinksContainer {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+  }
+
+  #subscribeLinksContainer.show {
+    max-height: 1000px;
+    opacity: 1;
+  }
+
+  #subscribeLinksContainer.hide {
+    max-height: 0;
+    opacity: 0;
+  }
+
 `;
 
-const generateBody = (xrayUrl, singboxUrl, clashUrl) => `
+const generateBody = (xrayUrl, singboxUrl, clashUrl, baseUrl) => `
   <body>
     ${generateDarkModeToggle()}
     ${generateGithubLink()}
@@ -378,7 +407,9 @@ const generateBody = (xrayUrl, singboxUrl, clashUrl) => `
         ${generateCardHeader()}
         <div class="card-body">
           ${generateForm()}
-          ${generateSubscribeLinks(xrayUrl, singboxUrl, clashUrl)}
+          <div id="subscribeLinksContainer">
+            ${generateSubscribeLinks(xrayUrl, singboxUrl, clashUrl, baseUrl)}
+          </div>
         </div>
       </div>
     </div>
@@ -417,25 +448,32 @@ const generateForm = () => `
     <div id="advancedOptions">
       ${generateRuleSetSelection()}
     </div>
-    <div class="d-grid mt-4">
-      <button type="submit" class="btn btn-primary btn-lg">
-        <i class="fas fa-sync-alt me-2"></i>Convert
-      </button>
-    </div>
-    <div class="d-grid mt-2">
-      <button type="button" class="btn btn-secondary btn-lg" id="clearFormBtn">
-        <i class="fas fa-trash-alt me-2"></i>Clear Form
-      </button>
-    </div>
+  <div class="d-flex mt-4">
+    <button type="submit" class="btn btn-primary btn-lg me-2" style="flex: 6;">
+      <i class="fas fa-sync-alt me-2"></i>Convert
+    </button>
+    <button type="button" class="btn btn-secondary btn-lg" id="clearFormBtn" style="flex: 4;">
+      <i class="fas fa-trash-alt me-2"></i>Clear
+    </button>
+  </div>
   </form>
 `;
 
-const generateSubscribeLinks = (xrayUrl, singboxUrl, clashUrl) => `
+const generateSubscribeLinks = (xrayUrl, singboxUrl, clashUrl, baseUrl) => `
   <div class="mt-5">
     <h2 class="mb-4">Your subscribe links:</h2>
     ${generateLinkInput('Xray Link:', 'xrayLink', xrayUrl)}
     ${generateLinkInput('SingBox Link:', 'singboxLink', singboxUrl)}
     ${generateLinkInput('Clash Link:', 'clashLink', clashUrl)}
+    <div class="mb-3">
+      <label for="customShortCode" class="form-label">Custom Path (optional):</label>
+      <div class="input-group flex-nowrap">
+        <span class="input-group-text text-truncate" style="max-width: 200px;" title="${baseUrl}/s/">
+          ${baseUrl}/s/
+        </span>
+        <input type="text" class="form-control" id="customShortCode" placeholder="e.g. my-custom-link">
+      </div>
+    </div>
     <div class="d-grid">
       <button class="btn btn-primary btn-lg" type="button" onclick="shortenAllUrls()">
         <i class="fas fa-compress-alt me-2"></i>Shorten Links
@@ -505,11 +543,11 @@ const copyToClipboardFunction = () => `
 `;
 
 const shortenAllUrlsFunction = () => `
-  async function shortenUrl(url) {
-    const response = await fetch(\`/shorten?url=\${encodeURIComponent(url)}\`);
+  async function shortenUrl(url, customShortCode) {
+    const response = await fetch(\`/shorten-v2?url=\${encodeURIComponent(url)}&shortCode=\${encodeURIComponent(customShortCode || '')}\`);
     if (response.ok) {
-      const data = await response.json();
-      return data.shortUrl;
+      const data = await response.text();
+      return data;
     }
     throw new Error('Failed to shorten URL');
   }
@@ -523,18 +561,16 @@ const shortenAllUrlsFunction = () => `
       const xrayLink = document.getElementById('xrayLink');
       const singboxLink = document.getElementById('singboxLink');
       const clashLink = document.getElementById('clashLink');
+      const customShortCode = document.getElementById('customShortCode').value;
 
-      const [xrayShortUrl, singboxShortUrl, clashShortUrl] = await Promise.all([
-        shortenUrl(xrayLink.value),
-        shortenUrl(singboxLink.value),
-        shortenUrl(clashLink.value)
-      ]);
+      const shortCode = await shortenUrl(singboxLink.value, customShortCode);
 
-      xrayLink.value = xrayShortUrl;
-      singboxLink.value = singboxShortUrl;
-      clashLink.value = clashShortUrl;
+      xrayLink.value = window.location.origin + '/x/' + shortCode;
+      singboxLink.value = window.location.origin + '/b/' + shortCode;
+      clashLink.value = window.location.origin + '/c/' + shortCode;
     } catch (error) {
       console.error('Error:', error);
+      alert('Failed to shorten URLs. Please try again.');
     } finally {
       shortenButton.disabled = false;
       shortenButton.innerHTML = '<i class="fas fa-compress-alt me-2"></i>Shorten Links';
@@ -698,6 +734,14 @@ const submitFormFunction = () => `
     document.getElementById('xrayLink').value = xrayUrl;
     document.getElementById('singboxLink').value = singboxUrl;
     document.getElementById('clashLink').value = clashUrl;
+
+    // Show the subscribe part
+    const subscribeLinksContainer = document.getElementById('subscribeLinksContainer');
+    subscribeLinksContainer.classList.remove('hide');
+    subscribeLinksContainer.classList.add('show');
+
+    // Scroll to the subscribe part
+    subscribeLinksContainer.scrollIntoView({ behavior: 'smooth' });
   }
 
   function loadSavedFormData() {
@@ -752,6 +796,19 @@ const submitFormFunction = () => `
     document.getElementById('advancedOptions').classList.remove('show');
     document.querySelectorAll('input[name="selectedRules"]').forEach(checkbox => checkbox.checked = false);
     document.getElementById('predefinedRules').value = 'custom';
+
+    const subscribeLinksContainer = document.getElementById('subscribeLinksContainer');
+    subscribeLinksContainer.classList.remove('show');
+    subscribeLinksContainer.classList.add('hide');
+
+    document.getElementById('xrayLink').value = '';
+    document.getElementById('singboxLink').value = '';
+    document.getElementById('clashLink').value = '';
+
+    // wait to reset the container
+    setTimeout(() => {
+      subscribeLinksContainer.classList.remove('hide');
+    }, 500);
   }
 
   document.addEventListener('DOMContentLoaded', function() {

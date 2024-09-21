@@ -1,5 +1,23 @@
 # 更新日志
 
+## 2024 09-20
+
+- 在公共站点启用新域名(https://sublink-worker.sageer.me)
+
+## 2024-09-18
+
+- ([#35](https://github.com/7Sageer/sublink-worker/issues/35)) 确保Vmess转换时security选项存在
+- 修复了默认配置缺乏出站的问题
+
+## 2024-09-15
+
+- ([#31](https://github.com/7Sageer/sublink-worker/issues/31),[#25](https://github.com/7Sageer/sublink-worker/issues/25)) 现在可以自定义短链接路径
+- 优化了前端显示，简化操作流程
+
+## 2024-09-13
+
+- ([#27](https://github.com/7Sageer/sublink-worker/issues/27)) 优化了出站选择排布
+
 ## 2024-09-10
 
 - ([#25](https://github.com/7Sageer/sublink-worker/issues/25)) 修复了Base64无法转换多个HTTP的问题
