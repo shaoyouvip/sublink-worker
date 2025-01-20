@@ -61,9 +61,13 @@ const generateDarkModeToggle = () => `
   </button>
 `;
 
-const generateGithubLink = () => `
+const generateLinks = () => `
   <a href="https://github.com/7Sageer/sublink-worker" target="_blank" rel="noopener noreferrer" class="github-link">
-    <i class="fab fa-github"></i>
+    <i class="fab fa-github"></i> GitHub
+  </a>
+  <br>
+  <a href="https://blog.aizrf.com/" target="_blank" rel="noopener noreferrer" class="blog-link">
+    <i class="fas fa-blog"></i> 我的博客
   </a>
 `;
 
