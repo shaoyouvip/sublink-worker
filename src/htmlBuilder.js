@@ -61,7 +61,7 @@ const generateDarkModeToggle = () => `
   </button>
 `;
 
-const generateLinks = () => `
+<div id="links">
   <a href="https://github.com/7Sageer/sublink-worker" target="_blank" rel="noopener noreferrer" class="github-link">
     <i class="fab fa-github"></i> GitHub
   </a>
@@ -70,7 +70,8 @@ const generateLinks = () => `
     <img src="https://blog.aizrf.com/img/logo.png" alt="博客图标" style="width: 20px; height: 20px; vertical-align: middle;">
     我的博客
   </a>
-`;
+</div>
+
 
 const generateCardHeader = () => `
   <div class="card-header text-center">
