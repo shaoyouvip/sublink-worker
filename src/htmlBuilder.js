@@ -72,7 +72,6 @@ const generateDarkModeToggle = () => `
   </a>
 </div>
 
-
 const generateCardHeader = () => `
   <div class="card-header text-center">
     <h1 class="display-4 mb-0">Sublink Worker</h1>
