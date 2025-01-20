@@ -67,7 +67,8 @@ const generateLinks = () => `
   </a>
   <br>
   <a href="https://blog.aizrf.com/" target="_blank" rel="noopener noreferrer" class="blog-link">
-    <i class="fas fa-blog"></i> 我的博客
+    <img src="https://blog.aizrf.com/img/logo.png" alt="博客图标" style="width: 20px; height: 20px; vertical-align: middle;">
+    我的博客
   </a>
 `;
 
